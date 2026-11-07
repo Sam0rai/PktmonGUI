@@ -1,0 +1,52 @@
+<UserControl x:Class="PktmonGUI.Controls.CommandLogPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Self">
+    <Border Background="{DynamicResource B.Titlebar}" BorderBrush="{DynamicResource B.Border}" BorderThickness="1" CornerRadius="4">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="12,7" BorderBrush="{DynamicResource B.Border}" BorderThickness="0,0,0,1">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Ghost}" MinHeight="22" Padding="6,0" Click="Copy_Click"
+                            ToolTip="Copy the commands so you can run or document them">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource I.Copy}" Margin="0,0,5,0" />
+                            <TextBlock Text="{Binding CopyText, ElementName=Self}" FontSize="11.5" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="{Binding Title, ElementName=Self}" Style="{StaticResource T.Section}" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+            <TextBlock DockPanel.Dock="Bottom" Margin="12,0,12,9" Style="{StaticResource T.Faint}" Text="{Binding Footer, ElementName=Self}"
+                       Visibility="{Binding Footer, ElementName=Self, Converter={StaticResource HasVis}}" />
+            <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,8">
+                <ItemsControl ItemsSource="{Binding ItemsSource, ElementName=Self}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="Wrap" Margin="0,2" FontFamily="{StaticResource F.Mono}" FontSize="11.5" LineHeight="17"
+                                       ToolTip="{Binding Output}" ToolTipService.ShowDuration="60000">
+                                <Run x:Name="Prompt" Text="&gt; " Foreground="{DynamicResource B.Accent}" /><Run x:Name="Cmd" Text="{Binding Text, Mode=OneWay}" Foreground="{DynamicResource B.Text2}" /><Run x:Name="NoteRun" Text="{Binding Note, Mode=OneWay, StringFormat='  · {0}'}" Foreground="{DynamicResource B.TextFaint}" FontFamily="{StaticResource F.Ui}" />
+                            </TextBlock>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsNote}" Value="True">
+                                    <Setter TargetName="Prompt" Property="Text" Value="# " />
+                                    <Setter TargetName="Prompt" Property="Foreground" Value="{DynamicResource B.TextFaint}" />
+                                    <Setter TargetName="Cmd" Property="Foreground" Value="{DynamicResource B.TextDim}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Failed}" Value="True">
+                                    <Setter TargetName="Prompt" Property="Foreground" Value="{DynamicResource B.Bad}" />
+                                    <Setter TargetName="Cmd" Property="Foreground" Value="{DynamicResource B.Bad}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                    <Setter TargetName="Prompt" Property="Foreground" Value="{DynamicResource B.Warn}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Note}" Value="{x:Null}">
+                                    <Setter TargetName="NoteRun" Property="Text" Value="" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

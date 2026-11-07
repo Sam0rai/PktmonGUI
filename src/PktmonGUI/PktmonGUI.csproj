@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <!-- Constructors load [ObservableProperty] backing fields directly on purpose, to avoid change notifications. -->
+    <NoWarn>$(NoWarn);MVVMTK0034</NoWarn>
+    <Nullable>disable</Nullable>
+    <RootNamespace>PktmonGUI</RootNamespace>
+    <AssemblyName>PktmonGUI</AssemblyName>
+    <!-- pktmon.exe lives only in the 64-bit System32; a 32-bit process would be redirected to SysWOW64. -->
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Program.Main runs headless mode (any argument) before WPF loads; App.Main is not used. -->
+    <StartupObject>PktmonGUI.Program</StartupObject>
+    <ApplicationIcon>Assets\PktmonGUI.ico</ApplicationIcon>
+    <Version>1.4.0</Version>
+    <Product>PktmonGUI</Product>
+    <Description>Portable GUI frontend for the Windows pktmon packet monitor</Description>
+    <Copyright>Copyright © 2026</Copyright>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>embedded</DebugType>
+    <!-- Keep the output folder to a single exe: no .config, no .pdb, no satellite folders. -->
+    <GenerateSupportedRuntime>false</GenerateSupportedRuntime>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PktmonGUI.Tests" />
+    <InternalsVisibleTo Include="DocShots" />
+  </ItemGroup>
+
+  <!-- Framework assemblies (in the GAC, so not embedded): WMI to detach a headless capture, zip for its results. -->
+  <ItemGroup>
+    <Reference Include="System.Management" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.6" />
+    <PackageReference Include="System.Text.Json" Version="9.0.8" />
+    <PackageReference Include="Costura.Fody" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="Fody" Version="6.9.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\PktmonGUI.ico" />
+  </ItemGroup>
+
+  <!--
+    TraceEvent copies KernelTraceControl/msdia (kernel rundown merging, symbols) and the Dia2Lib /
+    TraceReloggerLib COM interop assemblies next to the exe. A real-time manifest-provider session
+    uses none of them, so drop them to keep the output a single portable exe.
+  -->
+  <Target Name="DropTraceEventSupportFiles" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <None Remove="@(None)" Condition="'%(None.Link)' == 'Dia2Lib.dll' Or '%(None.Link)' == 'TraceReloggerLib.dll' Or $([System.String]::Copy('%(None.Link)').Contains('KernelTraceControl')) Or $([System.String]::Copy('%(None.Link)').Contains('msdia140'))" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+    Dia2Lib and TraceReloggerLib are COM interop assemblies TraceEvent references, so they arrive as
+    copy-local references rather than None items and the target above never saw them: they were copied
+    beside the exe and embedded into it. Dropping them here keeps both out, as intended.
+  -->
+  <Target Name="DropTraceEventInteropAssemblies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
+                               Condition="'%(Filename)' == 'Dia2Lib' Or '%(Filename)' == 'TraceReloggerLib'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -1,0 +1,26 @@
+bin/
+obj/
+# tools/Build-Docs.ps1 output: the guides as HTML and PDF (the PDF is a release asset)
+build/
+.vs/
+*.user
+TestResults/
+# Runtime data written beside the exe during development
+settings.json
+presets.json
+snapshots/
+crash.log
+# Local secrets (test-host credentials)
+tools/creds.txt
+# Captures collected from remote hosts: tools/Invoke-RemotePktmon.ps1 -Action Collect defaults here,
+# and packets hold the hosts' addresses and names.
+pktmon-results/
+
+# Not published: the test project and the private dev tools. Only these two tools are.
+tests/
+tools/*
+!tools/Invoke-RemotePktmon.ps1
+!tools/process_comment.lua
+# Logo drafts
+PktMonGUI Logo*
+PktMonGUI Network Monitor Badge.png

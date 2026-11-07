@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Fonts and sizes. The palette is in Dark.xaml / Light.xaml. -->
+    <FontFamily x:Key="F.Ui">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="F.Mono">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+    <sys:Double x:Key="FS.Tiny">10.5</sys:Double>
+    <sys:Double x:Key="FS.Small">11.5</sys:Double>
+    <sys:Double x:Key="FS.Body">12.5</sys:Double>
+    <sys:Double x:Key="FS.Nav">13</sys:Double>
+    <sys:Double x:Key="FS.H2">15</sys:Double>
+    <sys:Double x:Key="FS.H1">20</sys:Double>
+</ResourceDictionary>

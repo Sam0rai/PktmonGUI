@@ -1,0 +1,242 @@
+<UserControl x:Class="PktmonGUI.Views.CountersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:PktmonGUI.Controls"
+             xmlns:util="clr-namespace:PktmonGUI.Util">
+    <UserControl.Resources>
+        <Style x:Key="Tile" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="Padding" Value="14,12" />
+        </Style>
+        <Style x:Key="TileLabel" TargetType="TextBlock" BasedOn="{StaticResource T.Section}" />
+        <Style x:Key="TileValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="{StaticResource F.Mono}" />
+            <Setter Property="Margin" Value="0,6,0,2" />
+            <Setter Property="Foreground" Value="{DynamicResource B.Text}" />
+        </Style>
+        <Style x:Key="TileNote" TargetType="TextBlock" BasedOn="{StaticResource T.Muted}">
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource B.Border}" BorderThickness="0,0,0,1" Padding="20,12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" util:Tour.Key="counters.actions">
+                    <Button Command="{Binding ResetCommand}" Margin="0,0,8,0" IsEnabled="{Binding IsRunning}">
+                        <Button.ToolTip><util:Hint Text="Zero the counters of the running session." Flag="pktmon reset" /></Button.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource I.Reset}" Margin="0,0,7,0" />
+                            <TextBlock Text="Reset to zero" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Btn.Danger}" Command="{Binding StopCommand}" Visibility="{Binding IsRunning, Converter={StaticResource Vis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource I.Stop}" Stroke="White" Fill="White" Margin="0,0,7,0" RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform><ScaleTransform ScaleX="0.8" ScaleY="0.8" /></Path.RenderTransform>
+                            </Path>
+                            <TextBlock Text="Stop" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Counters" Style="{StaticResource T.H2}" />
+                    <ContentControl Style="{StaticResource InfoTip}" Margin="8,0,0,0"
+                                    ToolTip="Counts since this capture started, not since boot. pktmon counts per component (the adapter and the drivers above it), in each direction." />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <c:CommandLogPanel DockPanel.Dock="Bottom" Margin="20,0,20,14" Title="Commands behind this view" CopyText="Copy all" ItemsSource="{Binding Preview}" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,14,20,14">
+                <!-- Binding proxy for DataGrid column visibility (columns aren't in the visual tree) -->
+                <FrameworkElement x:Name="Proxy" Visibility="Collapsed" />
+                <!-- Not running -->
+                <Border Style="{StaticResource Callout.Info}" Margin="0,0,0,14" Visibility="{Binding IsRunning, Converter={StaticResource VisNot}}">
+                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource B.Text2}"
+                               Text="No session is running. Start one on the Capture page." />
+                </Border>
+
+                <!-- Counters-only callout -->
+                <Border Style="{StaticResource Callout.Info}" Margin="0,0,0,14" Visibility="{Binding IsCountersOnly, Converter={StaticResource Vis}}">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Switch to packet capture" Command="{Binding SwitchToCaptureCommand}" Margin="12,0,0,0" VerticalAlignment="Center"
+                                ToolTip="Stop this session first, then start Live or Record on the Capture page" />
+                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource B.Text2}" VerticalAlignment="Center"
+                                   Text="Counters-only mode: only these totals are kept, no packets are stored." />
+                    </DockPanel>
+                </Border>
+
+                <!-- Controls -->
+                <WrapPanel Margin="0,0,0,14">
+                    <TextBlock Text="Refresh" Foreground="{DynamicResource B.TextDim}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox ItemsSource="{Binding RefreshChoices}" SelectedItem="{Binding RefreshSeconds}" Width="84" Margin="0,0,20,0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate><TextBlock Text="{Binding StringFormat='{}{0} s'}" /></DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBlock Text="Show" Foreground="{DynamicResource B.TextDim}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <Border Style="{StaticResource SegHost}" Margin="0,0,20,0" util:Tour.Key="counters.view">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Style="{StaticResource Seg}" GroupName="cview" Content="Flow" IsChecked="{Binding View, Converter={StaticResource EnumEq}, ConverterParameter=Flow}" />
+                            <RadioButton Style="{StaticResource Seg}" GroupName="cview" Content="Drop" IsChecked="{Binding View, Converter={StaticResource EnumEq}, ConverterParameter=Drop}" />
+                            <RadioButton Style="{StaticResource Seg}" GroupName="cview" Content="All" IsChecked="{Binding View, Converter={StaticResource EnumEq}, ConverterParameter=All}" />
+                        </StackPanel>
+                    </Border>
+                    <CheckBox IsChecked="{Binding ShowZero}" VerticalAlignment="Center" Margin="0,0,20,0" Content="Show components still at zero">
+                        <CheckBox.ToolTip><util:Hint Text="Include components that haven't seen a packet yet." Flag="pktmon counters --zero" /></CheckBox.ToolTip>
+                    </CheckBox>
+                    <CheckBox IsChecked="{Binding ShowAllComponents}" VerticalAlignment="Center" Margin="0,0,20,0" Content="Outside the capture scope">
+                        <CheckBox.ToolTip><util:Hint Text="Also show components the capture isn't monitoring, including hidden ones." Flag="pktmon counters --include-hidden" /></CheckBox.ToolTip>
+                    </CheckBox>
+                    <TextBlock Text="{Binding UpdatedText}" Foreground="{DynamicResource B.TextFaint}" VerticalAlignment="Center" FontSize="11.5" />
+                </WrapPanel>
+
+                <Border Style="{StaticResource Callout.Bad}" Margin="0,0,0,14" Visibility="{Binding Error, Converter={StaticResource HasVis}}">
+                    <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource B.Bad}" />
+                </Border>
+
+                <!-- Tiles -->
+                <UniformGrid Rows="1" Columns="4" Margin="0,0,-12,16" util:Tour.Key="counters.main">
+                    <Border Style="{StaticResource Tile}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource TileLabel}" Text="Matched packets" />
+                            <TextBlock Style="{StaticResource TileValue}" Text="{Binding TotalPackets, Converter={StaticResource N0}}" />
+                            <TextBlock Style="{StaticResource TileNote}" Text="{Binding Rate}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Tile}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="8" Height="8" RadiusX="2" RadiusY="2" Fill="{DynamicResource B.Rx}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Style="{StaticResource TileLabel}" Text="RX inbound" />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource TileValue}" Text="{Binding RxPackets, Converter={StaticResource N0}}" />
+                            <TextBlock Style="{StaticResource TileNote}">
+                                <Run Text="{Binding RxShare, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding RxBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Tile}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="8" Height="8" RadiusX="2" RadiusY="2" Fill="{DynamicResource B.Tx}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Style="{StaticResource TileLabel}" Text="TX outbound" />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource TileValue}" Text="{Binding TxPackets, Converter={StaticResource N0}}" />
+                            <TextBlock Style="{StaticResource TileNote}">
+                                <Run Text="{Binding TxShare, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding TxBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Tile}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource TileLabel}" Text="TCP handshakes · SYN → SYN,ACK" />
+                            <TextBlock Style="{StaticResource TileValue}" Text="{Binding HandshakeText}" />
+                            <TextBlock Style="{StaticResource TileNote}" Text="{Binding HandshakeNote}" ToolTip="{Binding HandshakeNote}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Per rule (Live only) -->
+                <StackPanel Visibility="{Binding ShowRuleTable, Converter={StaticResource Vis}}" Margin="0,0,0,16" util:Tour.Key="counters.rules">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <TextBlock Text="Per filter rule" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                        <ContentControl Style="{StaticResource InfoTip}"
+                                        ToolTip="From the Filter N field on each packet. Live mode only: pktmon itself counts per component, not per rule." />
+                    </StackPanel>
+                    <Border Style="{StaticResource Card}" Padding="0">
+                        <DataGrid ItemsSource="{Binding Tallies}" Background="Transparent" RowHeight="40" HeadersVisibility="Column" MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="RULE" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource B.Text}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Args}" FontFamily="{StaticResource F.Mono}" FontSize="11" Foreground="{DynamicResource B.TextDim}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="RX PKTS" Binding="{Binding RxPackets, Converter={StaticResource N0}}" Width="90" ElementStyle="{StaticResource Cell.Mono}" />
+                                <DataGridTextColumn Header="RX BYTES" Binding="{Binding RxBytes, Converter={StaticResource Bytes}}" Width="90" ElementStyle="{StaticResource Cell.Mono}" />
+                                <DataGridTextColumn Header="TX PKTS" Binding="{Binding TxPackets, Converter={StaticResource N0}}" Width="90" ElementStyle="{StaticResource Cell.Mono}" />
+                                <DataGridTextColumn Header="TX BYTES" Binding="{Binding TxBytes, Converter={StaticResource Bytes}}" Width="90" ElementStyle="{StaticResource Cell.Mono}" />
+                                <DataGridTextColumn Header="DIRECTION SPLIT" Binding="{Binding Split}" Width="260" ElementStyle="{StaticResource Cell.Text}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Per component -->
+                <DockPanel Margin="0,0,0,6">
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource T.Faint}" Text="{Binding ScopeText}" VerticalAlignment="Center" />
+                    <TextBlock Text="Per component" FontWeight="SemiBold" FontSize="13" />
+                </DockPanel>
+                <Border Style="{StaticResource Card}" Padding="0" util:Tour.Key="counters.components">
+                    <Grid>
+                        <DataGrid ItemsSource="{Binding Rows}" Background="Transparent" RowHeight="40" MinHeight="80" MaxHeight="420">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="52" ElementStyle="{StaticResource Cell.Mono}" />
+                                <DataGridTemplateColumn Header="COMPONENT" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource B.Text}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Group}" FontSize="11" Foreground="{DynamicResource B.TextDim}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="RX PKTS" Binding="{Binding RxPackets, Converter={StaticResource N0}}" Width="90" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowFlows, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="RX BYTES" Binding="{Binding RxBytes, Converter={StaticResource Bytes}}" Width="90" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowFlows, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="TX PKTS" Binding="{Binding TxPackets, Converter={StaticResource N0}}" Width="90" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowFlows, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="TX BYTES" Binding="{Binding TxBytes, Converter={StaticResource Bytes}}" Width="90" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowFlows, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="SPLIT" Binding="{Binding Split}" Width="130" ElementStyle="{StaticResource Cell.Text}"
+                                                    Visibility="{Binding DataContext.ShowFlows, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="RX DROPS" Binding="{Binding RxDrops, Converter={StaticResource N0}}" Width="84" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowDrops, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTextColumn Header="TX DROPS" Binding="{Binding TxDrops, Converter={StaticResource N0}}" Width="84" ElementStyle="{StaticResource Cell.Mono}"
+                                                    Visibility="{Binding DataContext.ShowDrops, Source={x:Reference Proxy}, Converter={StaticResource Vis}}" />
+                                <DataGridTemplateColumn Header="LAST DROP REASON" Width="240"
+                                                        Visibility="{Binding DataContext.ShowDrops, Source={x:Reference Proxy}, Converter={StaticResource Vis}}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DropReason}" Foreground="{DynamicResource B.Bad}" TextTrimming="CharacterEllipsis" ToolTip="{Binding DropReason}" />
+                                                <TextBlock Text="{Binding DropSources}" FontFamily="{StaticResource F.Mono}" FontSize="11" Foreground="{DynamicResource B.TextDim}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Style="{StaticResource T.Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,30,0,0" IsHitTestVisible="False"
+                                   Text="No counters yet." Visibility="{Binding Rows.Count, Converter={StaticResource HasVisNot}}" />
+                    </Grid>
+                </Border>
+
+                <!-- Drop summary -->
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" util:Tour.Key="counters.drops">
+                    <TextBlock TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center">
+                        <Run Text="Drop counters: " Foreground="{DynamicResource B.TextDim}" /><Run Text="{Binding DropSummary, Mode=OneWay}" Foreground="{DynamicResource B.Text2}" />
+                    </TextBlock>
+                    <ContentControl Style="{StaticResource InfoTip}">
+                        <ContentControl.ToolTip><util:Hint Text="Switch the view to Drop for per-reason detail, or start a capture with packet type Drops to see the dropped packets themselves." Flag="--type drop" /></ContentControl.ToolTip>
+                    </ContentControl>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

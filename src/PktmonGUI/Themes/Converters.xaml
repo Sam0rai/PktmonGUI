@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:u="clr-namespace:PktmonGUI.Util">
+    <u:BoolToVisibilityConverter x:Key="Vis" />
+    <u:BoolToVisibilityConverter x:Key="VisNot" Invert="True" />
+    <u:HasValueToVisibilityConverter x:Key="HasVis" />
+    <u:HasValueToVisibilityConverter x:Key="HasVisNot" Invert="True" />
+    <u:InverseBoolConverter x:Key="Not" />
+    <u:EnumEqualsConverter x:Key="EnumEq" />
+    <u:EnumToVisibilityConverter x:Key="PageVis" />
+    <u:NumberConverter x:Key="N0" />
+    <u:BytesConverter x:Key="Bytes" />
+    <u:ToneToBrushConverter x:Key="ToneBrush" />
+    <u:CheckStateToGeometryConverter x:Key="CheckGeo" />
+    <u:BoolToStarWidthConverter x:Key="StarIfTrue" />
+</ResourceDictionary>

@@ -1,0 +1,82 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Dark palette, taken from PktmonGUI - Design Mockup.html. Swapped at runtime by ThemeManager, so the views use DynamicResource for B.* and C.*. -->
+    <Color x:Key="C.Titlebar">#0C0E12</Color>
+    <Color x:Key="C.App">#0E1014</Color>
+    <Color x:Key="C.Sidebar">#12151B</Color>
+    <Color x:Key="C.Window">#171A20</Color>
+    <Color x:Key="C.Surface">#1D212A</Color>
+    <Color x:Key="C.Input">#232833</Color>
+    <Color x:Key="C.NavSelected">#202A31</Color>
+    <Color x:Key="C.RowHover">#1B2029</Color>
+    <Color x:Key="C.RowSelected">#18293A</Color>
+    <Color x:Key="C.Border">#2C313C</Color>
+    <Color x:Key="C.BorderStrong">#3B4250</Color>
+    <Color x:Key="C.Text">#E8EBF0</Color>
+    <Color x:Key="C.Text2">#C9D0DA</Color>
+    <Color x:Key="C.Text3">#9AA3B2</Color>
+    <Color x:Key="C.TextDim">#7D8696</Color>
+    <Color x:Key="C.TextFaint">#55606F</Color>
+    <Color x:Key="C.Accent">#3FA7A0</Color>
+    <Color x:Key="C.AccentHover">#5FC4BD</Color>
+    <Color x:Key="C.AccentDeep">#1F7A74</Color>
+    <Color x:Key="C.AccentBg">#1A2A29</Color>
+    <Color x:Key="C.AccentBorder">#2C4A47</Color>
+    <Color x:Key="C.Good">#5CBF8B</Color>
+    <Color x:Key="C.GoodBg">#16261E</Color>
+    <Color x:Key="C.Warn">#E8B84B</Color>
+    <Color x:Key="C.WarnBg">#2E2413</Color>
+    <Color x:Key="C.WarnBorder">#5A4520</Color>
+    <Color x:Key="C.Bad">#E2776C</Color>
+    <Color x:Key="C.BadBg">#2A1715</Color>
+    <Color x:Key="C.Danger">#A8382F</Color>
+    <Color x:Key="C.DangerBorder">#C24A40</Color>
+    <Color x:Key="C.Rx">#4E93D4</Color>
+    <Color x:Key="C.Tx">#C57F2C</Color>
+    <Color x:Key="C.Purple">#9B8CE0</Color>
+    <Color x:Key="C.Blue">#7FB2E8</Color>
+    <Color x:Key="C.Orange">#E0A458</Color>
+    <Color x:Key="C.Scrim">#CC0E1014</Color>
+    <Color x:Key="C.ScrimSoft">#B30E1014</Color>
+    <Color x:Key="C.RowLine">#1D212A</Color>
+
+    <SolidColorBrush x:Key="B.Titlebar" Color="{StaticResource C.Titlebar}" />
+    <SolidColorBrush x:Key="B.App" Color="{StaticResource C.App}" />
+    <SolidColorBrush x:Key="B.Sidebar" Color="{StaticResource C.Sidebar}" />
+    <SolidColorBrush x:Key="B.Window" Color="{StaticResource C.Window}" />
+    <SolidColorBrush x:Key="B.Surface" Color="{StaticResource C.Surface}" />
+    <SolidColorBrush x:Key="B.Input" Color="{StaticResource C.Input}" />
+    <SolidColorBrush x:Key="B.NavSelected" Color="{StaticResource C.NavSelected}" />
+    <SolidColorBrush x:Key="B.RowHover" Color="{StaticResource C.RowHover}" />
+    <SolidColorBrush x:Key="B.RowSelected" Color="{StaticResource C.RowSelected}" />
+    <SolidColorBrush x:Key="B.Border" Color="{StaticResource C.Border}" />
+    <SolidColorBrush x:Key="B.BorderStrong" Color="{StaticResource C.BorderStrong}" />
+    <SolidColorBrush x:Key="B.Text" Color="{StaticResource C.Text}" />
+    <SolidColorBrush x:Key="B.Text2" Color="{StaticResource C.Text2}" />
+    <SolidColorBrush x:Key="B.Text3" Color="{StaticResource C.Text3}" />
+    <SolidColorBrush x:Key="B.TextDim" Color="{StaticResource C.TextDim}" />
+    <SolidColorBrush x:Key="B.TextFaint" Color="{StaticResource C.TextFaint}" />
+    <SolidColorBrush x:Key="B.Accent" Color="{StaticResource C.Accent}" />
+    <SolidColorBrush x:Key="B.AccentHover" Color="{StaticResource C.AccentHover}" />
+    <SolidColorBrush x:Key="B.AccentDeep" Color="{StaticResource C.AccentDeep}" />
+    <SolidColorBrush x:Key="B.AccentBg" Color="{StaticResource C.AccentBg}" />
+    <SolidColorBrush x:Key="B.AccentBorder" Color="{StaticResource C.AccentBorder}" />
+    <SolidColorBrush x:Key="B.Good" Color="{StaticResource C.Good}" />
+    <SolidColorBrush x:Key="B.GoodBg" Color="{StaticResource C.GoodBg}" />
+    <SolidColorBrush x:Key="B.Warn" Color="{StaticResource C.Warn}" />
+    <SolidColorBrush x:Key="B.WarnBg" Color="{StaticResource C.WarnBg}" />
+    <SolidColorBrush x:Key="B.WarnBorder" Color="{StaticResource C.WarnBorder}" />
+    <SolidColorBrush x:Key="B.Bad" Color="{StaticResource C.Bad}" />
+    <SolidColorBrush x:Key="B.BadBg" Color="{StaticResource C.BadBg}" />
+    <SolidColorBrush x:Key="B.Danger" Color="{StaticResource C.Danger}" />
+    <SolidColorBrush x:Key="B.DangerBorder" Color="{StaticResource C.DangerBorder}" />
+    <SolidColorBrush x:Key="B.Rx" Color="{StaticResource C.Rx}" />
+    <SolidColorBrush x:Key="B.Tx" Color="{StaticResource C.Tx}" />
+    <SolidColorBrush x:Key="B.Purple" Color="{StaticResource C.Purple}" />
+    <SolidColorBrush x:Key="B.Blue" Color="{StaticResource C.Blue}" />
+    <SolidColorBrush x:Key="B.Orange" Color="{StaticResource C.Orange}" />
+    <SolidColorBrush x:Key="B.Scrim" Color="{StaticResource C.Scrim}" />
+    <SolidColorBrush x:Key="B.ScrimSoft" Color="{StaticResource C.ScrimSoft}" />
+    <SolidColorBrush x:Key="B.RowLine" Color="{StaticResource C.RowLine}" />
+</ResourceDictionary>

@@ -1,0 +1,299 @@
+<UserControl x:Class="PktmonGUI.Views.FilesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:PktmonGUI.Controls"
+             xmlns:util="clr-namespace:PktmonGUI.Util">
+    <UserControl.Resources>
+        <Style x:Key="MetaKey" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource B.TextDim}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,3,12,3" />
+        </Style>
+        <Style x:Key="MetaVal" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource B.Text2}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="ConvertOption" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="{DynamicResource B.Surface}" BorderBrush="{DynamicResource B.BorderStrong}" BorderThickness="1" CornerRadius="4" Padding="12,9" Margin="0,0,0,8">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource B.Accent}" />
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource B.AccentBg}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource B.TextFaint}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="380" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== List ===== -->
+        <DockPanel util:Tour.Key="files.list">
+            <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource B.Border}" BorderThickness="0,0,0,1" Padding="20,12">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Style="{StaticResource Pill}" Margin="0,0,10,0" Visibility="{Binding HasWireshark, Converter={StaticResource Vis}}" ToolTip="{Binding Wireshark.Folder}" util:Tour.Key="files.wireshark">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" Fill="{DynamicResource B.Good}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                                <TextBlock VerticalAlignment="Center" FontSize="12">
+                                    <Run Text="Wireshark found " Foreground="{DynamicResource B.Text2}" /><Run Text="{Binding Wireshark.Version, Mode=OneWay}" FontFamily="{StaticResource F.Mono}" Foreground="{DynamicResource B.TextDim}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Pill}" Margin="0,0,10,0" Visibility="{Binding HasWireshark, Converter={StaticResource VisNot}}"
+                                ToolTip="Install Wireshark, or put a portable copy in a 'Wireshark' folder beside PktmonGUI.exe">
+                            <TextBlock Text="Wireshark not found" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource B.TextDim}" />
+                        </Border>
+                        <Button Command="{Binding RefreshCommand}" Margin="0,0,8,0" ToolTip="Refresh">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource I.Refresh}" />
+                        </Button>
+                        <Button Command="{Binding OpenFolderCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource Icon}" Data="{StaticResource I.Open}" Margin="0,0,7,0" />
+                                <TextBlock Text="Open folder" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Capture files" Style="{StaticResource T.H2}" />
+                        <ContentControl Style="{StaticResource InfoTip}" Margin="8,0,0,0"
+                                        ToolTip="pktmon writes ETL. Wireshark reads pcapng. Converting leaves the original ETL in place." />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Border DockPanel.Dock="Top" Padding="20,10" BorderBrush="{DynamicResource B.Border}" BorderThickness="0,0,0,1" Background="{DynamicResource B.Sidebar}">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Right" Width="220">
+                        <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Tag="Search captures" Padding="24,0,6,0" />
+                        <Path Style="{StaticResource Icon}" Data="{StaticResource I.Search}" Stroke="{DynamicResource B.TextFaint}" HorizontalAlignment="Left" Margin="6,0,0,0" IsHitTestVisible="False" />
+                    </Grid>
+                    <Button DockPanel.Dock="Right" Command="{Binding DeleteMarkedCommand}" Margin="12,0,10,0"
+                            ToolTip="Delete the marked captures, with their sidecar and converted files (Del)">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Style="{StaticResource Icon}" Data="{StaticResource I.Trash}" Margin="0,0,7,0" />
+                            <TextBlock Text="{Binding DeleteMarkedText}" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding Folder}" util:Tour.Key="files.folder">
+                        <Run Text="Folder  " Foreground="{DynamicResource B.TextDim}" /><Run Text="{Binding Folder, Mode=OneWay}" FontFamily="{StaticResource F.Mono}" Foreground="{DynamicResource B.Text2}" /><Run Text="  ·  " Foreground="{DynamicResource B.TextFaint}" /><Run Text="{Binding FolderStats, Mode=OneWay}" Foreground="{DynamicResource B.TextDim}" />
+                    </TextBlock>
+                </DockPanel>
+            </Border>
+
+            <Grid>
+                <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" RowHeight="32" CanUserSortColumns="True">
+                    <DataGrid.InputBindings>
+                        <KeyBinding Key="Delete" Command="{Binding DeleteMarkedOrSelectedCommand}" />
+                    </DataGrid.InputBindings>
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Show in Explorer" Command="{Binding ShowInFolderCommand}" />
+                            <MenuItem Header="Delete…" Command="{Binding DeleteCommand}" />
+                            <MenuItem Header="{Binding DeleteMarkedText}" HeaderStringFormat="{}{0}…" Command="{Binding DeleteMarkedCommand}" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Width="38" MinWidth="38" CanUserResize="False" CanUserReorder="False">
+                            <DataGridTemplateColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding DataContext.AllMarked, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                              ToolTip="Mark or unmark every capture in the list" Focusable="False" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.HeaderTemplate>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsMarked, UpdateSourceTrigger=PropertyChanged}" Focusable="False" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="CAPTURE" Binding="{Binding Name}" Width="*" MinWidth="180" ElementStyle="{StaticResource Cell.Mono}" SortMemberPath="Name" />
+                        <DataGridTextColumn Header="STARTED" Binding="{Binding StartedText}" Width="110" SortMemberPath="Started" ElementStyle="{StaticResource Cell.Text}" />
+                        <DataGridTextColumn Header="LENGTH" Binding="{Binding Length}" Width="76" MinWidth="60" ElementStyle="{StaticResource Cell.Mono}" />
+                        <DataGridTextColumn Header="PACKETS" Binding="{Binding Packets}" Width="80" MinWidth="60" ElementStyle="{StaticResource Cell.Mono}" />
+                        <DataGridTextColumn Header="SIZE" Binding="{Binding Size, Converter={StaticResource Bytes}}" Width="80" MinWidth="60" SortMemberPath="Size" ElementStyle="{StaticResource Cell.Mono}" />
+                        <DataGridTextColumn Header="ADAPTER" Binding="{Binding Adapter}" Width="170" ElementStyle="{StaticResource Cell.Text}" />
+                        <DataGridTemplateColumn Header="CONVERTED" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="T" Text="{Binding Converted}" FontFamily="{StaticResource F.Mono}" FontSize="11.5" VerticalAlignment="Center" Foreground="{DynamicResource B.TextDim}" />
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding HasPcap}" Value="True"><Setter TargetName="T" Property="Foreground" Value="{DynamicResource B.Good}" /></DataTrigger>
+                                        <DataTrigger Binding="{Binding Converted}" Value="Wi-Fi: check"><Setter TargetName="T" Property="Foreground" Value="{DynamicResource B.Warn}" /></DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock Style="{StaticResource T.Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" IsHitTestVisible="False"
+                           Visibility="{Binding Items.Count, Converter={StaticResource HasVisNot}}">
+                    <Run Text="No .etl files in the working folder yet." /><LineBreak /><Run Text="Use Record mode on the Capture page to write one." />
+                </TextBlock>
+            </Grid>
+        </DockPanel>
+
+        <!-- ===== Detail / convert ===== -->
+        <Border Grid.Column="1" Background="{DynamicResource B.Sidebar}" BorderBrush="{DynamicResource B.Border}" BorderThickness="1,0,0,0">
+            <Grid>
+                <TextBlock Style="{StaticResource T.Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Select a capture."
+                           Visibility="{Binding Selected, Converter={StaticResource HasVisNot}}" />
+                <DockPanel Visibility="{Binding Selected, Converter={StaticResource HasVis}}">
+                    <c:CommandLogPanel DockPanel.Dock="Bottom" Margin="14" Title="Convert will run" CopyText="Copy all" ItemsSource="{Binding Preview}" MaxHeight="200" util:Tour.Key="files.preview" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="16,14">
+                            <TextBlock Text="{Binding Selected.Name}" FontFamily="{StaticResource F.Mono}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <Grid Margin="0,10,0,14" util:Tour.Key="files.details">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource MetaKey}" Text="Adapter" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Column="1" Text="{Binding Selected.Adapter}" />
+                                <TextBlock Style="{StaticResource MetaKey}" Grid.Row="1" Text="Filters used" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Row="1" Grid.Column="1" Text="{Binding Selected.FiltersText}" FontFamily="{StaticResource F.Mono}" FontSize="11.5" />
+                                <TextBlock Style="{StaticResource MetaKey}" Grid.Row="2" Text="Snap length" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Row="2" Grid.Column="1" Text="{Binding Selected.SnapText}" FontFamily="{StaticResource F.Mono}" FontSize="11.5" />
+                                <TextBlock Style="{StaticResource MetaKey}" Grid.Row="3" Text="Log mode" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Row="3" Grid.Column="1" Text="{Binding Selected.LogModeText}" />
+                                <TextBlock Style="{StaticResource MetaKey}" Grid.Row="4" Text="Stopped" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Row="4" Grid.Column="1" Text="{Binding Selected.StoppedText}" />
+                                <TextBlock Style="{StaticResource MetaKey}" Grid.Row="5" Text="Processes" />
+                                <TextBlock Style="{StaticResource MetaVal}" Grid.Row="5" Grid.Column="1" Text="{Binding Selected.ProcessesText}" />
+                            </Grid>
+
+                            <Border Style="{StaticResource Callout.Info}" Margin="0,0,0,10" Visibility="{Binding IsLivePcapng, Converter={StaticResource Vis}}">
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource B.Text2}" FontSize="12"
+                                           Text="{Binding PcapngNote}" />
+                            </Border>
+
+                            <StackPanel Visibility="{Binding IsEtl, Converter={StaticResource Vis}}" util:Tour.Key="files.convert">
+
+                            <TextBlock Text="Convert" Style="{StaticResource T.Section}" Margin="0,0,0,8" />
+                            <RadioButton Style="{StaticResource ConvertOption}" GroupName="target" IsChecked="{Binding Target, Converter={StaticResource EnumEq}, ConverterParameter=Pcapng}">
+                                <RadioButton.ToolTip><util:Hint Text="Convert to pcapng and open it in Wireshark." Flag="pktmon etl2pcap" /></RadioButton.ToolTip>
+                                <StackPanel>
+                                    <TextBlock Text="pcapng for Wireshark" FontWeight="SemiBold" Foreground="{DynamicResource B.Text}" />
+                                    <TextBlock Text="Opens in Wireshark" FontSize="11" Foreground="{DynamicResource B.TextDim}" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton Style="{StaticResource ConvertOption}" GroupName="target" IsChecked="{Binding Target, Converter={StaticResource EnumEq}, ConverterParameter=Text}">
+                                <RadioButton.ToolTip><util:Hint Text="Readable text with full decode. The only way to read CDP and LLDP detail." Flag="pktmon etl2txt --verbose" /></RadioButton.ToolTip>
+                                <StackPanel>
+                                    <TextBlock Text="Text, verbose" FontWeight="SemiBold" Foreground="{DynamicResource B.Text}" />
+                                    <TextBlock Text="Readable text, includes CDP/LLDP detail" FontSize="11" Foreground="{DynamicResource B.TextDim}" />
+                                </StackPanel>
+                            </RadioButton>
+                            <CheckBox IsChecked="{Binding JoinParts}" Content="{Binding JoinPartsText}" Margin="0,4,0,8"
+                                      Visibility="{Binding CanJoinParts, Converter={StaticResource Vis}}">
+                                <CheckBox.ToolTip><util:Hint Text="Convert every part of this multi-file capture and join them, in capture order, into one pcapng for Wireshark. Off: convert only the selected part." /></CheckBox.ToolTip>
+                            </CheckBox>
+
+                            </StackPanel>
+
+                            <StackPanel Margin="0,4,0,0" Visibility="{Binding IsPcap, Converter={StaticResource Vis}}">
+                                <CheckBox IsChecked="{Binding AddProcessComments}" IsEnabled="{Binding HasAttribution}" Margin="0,0,0,8" Content="Add process comments">
+                                    <CheckBox.ToolTip><util:Hint Text="Adds two comments to every packet, such as &quot;Process: chrome.exe (PID 6660)&quot; and &quot;Process path: C:\Windows\Temp\chrome.exe&quot;. In Wireshark, add custom columns on frame.comment (occurrence 1 and 2), or filter with frame.comment matches &quot;windows.temp&quot;." Flag="frame.comment" /></CheckBox.ToolTip>
+                                </CheckBox>
+                                <TextBlock Margin="21,-6,0,8" Style="{StaticResource T.Faint}"
+                                           Text="No process data in this capture."
+                                           ToolTip="It was recorded with Processes off, or not by PktmonGUI."
+                                           Visibility="{Binding HasAttribution, Converter={StaticResource VisNot}}" />
+                                <StackPanel Visibility="{Binding IsEtl, Converter={StaticResource Vis}}">
+                                <CheckBox IsChecked="{Binding DropOnly}" Margin="0,0,0,8" Content="Dropped packets only">
+                                    <CheckBox.ToolTip><util:Hint Text="Keep only the packets the stack discarded." Flag="--drop-only" /></CheckBox.ToolTip>
+                                </CheckBox>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Only component" VerticalAlignment="Center" Foreground="{DynamicResource B.TextDim}" FontSize="12" Margin="0,0,8,0" />
+                                    <TextBox Text="{Binding ComponentId, UpdateSourceTrigger=PropertyChanged}" Width="70" Style="{StaticResource TextBox.Mono}" Tag="all"
+                                             HorizontalAlignment="Left">
+                                        <TextBox.ToolTip><util:Hint Text="Keep packets from one component only." Flag="--component-id" /></TextBox.ToolTip>
+                                    </TextBox>
+                                </DockPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <CheckBox IsChecked="{Binding TextHex}" Margin="0,4,0,8" Visibility="{Binding IsText, Converter={StaticResource Vis}}" Content="Include hex dump">
+                                <CheckBox.ToolTip><util:Hint Text="Add the raw bytes of each packet." Flag="--hex" /></CheckBox.ToolTip>
+                            </CheckBox>
+
+                            <StackPanel Visibility="{Binding IsEtl, Converter={StaticResource Vis}}">
+
+                            <TextBlock Margin="0,4,0,4" FontSize="12" Foreground="{DynamicResource B.TextDim}" Text="Output file" />
+                            <TextBox Text="{Binding OutputName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBox.Mono}"
+                                     ToolTip="Written to the working folder. An existing file of this name is overwritten." />
+
+                            </StackPanel>
+
+                            <Border Style="{StaticResource Callout.Warn}" Margin="0,12,0,0" Visibility="{Binding ShowWifiFix, Converter={StaticResource Vis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Wireless capture" FontWeight="SemiBold" Foreground="{DynamicResource B.Warn}" />
+                                    <TextBlock Margin="0,4,0,8" Style="{StaticResource T.Muted}" Foreground="{DynamicResource B.Text2}"
+                                               Text="Wi-Fi captures may not convert cleanly."
+                                               ToolTip="etl2pcap is documented to work for wired Ethernet only, so Wi-Fi captures may open in Wireshark as garbage." />
+                                    <CheckBox IsChecked="{Binding FixWifi}" IsEnabled="{Binding CanUseEditcap}" Content="Relabel as Wi-Fi (editcap)">
+                                        <CheckBox.ToolTip><util:Hint Text="Relabel the link type with Wireshark's editcap. Sometimes helps; experimental, not verified on every driver." Flag="editcap -T ieee-802-11" /></CheckBox.ToolTip>
+                                    </CheckBox>
+                                    <TextBlock Margin="21,4,0,0" Style="{StaticResource T.Faint}" Text="editcap wasn't found with Wireshark." Visibility="{Binding CanUseEditcap, Converter={StaticResource VisNot}}" />
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0" util:Tour.Key="files.convertbuttons">
+                                <Button Command="{Binding ConvertCommand}" Margin="0,0,8,0" IsEnabled="{Binding IsConverting, Converter={StaticResource Not}}">
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Convert only" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLivePcapng}" Value="True"><Setter Property="Text" Value="Re-apply process comments" /></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
+                                <Button Style="{StaticResource Btn.Primary}" Command="{Binding ConvertOpenCommand}" IsEnabled="{Binding IsConverting, Converter={StaticResource Not}}">
+                                    <TextBlock>
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Convert and open" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ShowWifiFix}" Value="True"><Setter Property="Text" Value="Convert, fix, open" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding HasWireshark}" Value="False"><Setter Property="Text" Value="Convert and open" /></DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsLivePcapng}" Value="True"><Setter Property="Text" Value="Open in Wireshark" /></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Margin="0,8,0,0" Text="{Binding Status}" Style="{StaticResource T.Faint}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button Style="{StaticResource Btn.Link}" Command="{Binding ShowInFolderCommand}" Content="Show in Explorer" Margin="0,0,16,0" />
+                                <Button Style="{StaticResource Btn.Link}" Command="{Binding DeleteCommand}" Content="Delete…" Foreground="{DynamicResource B.Bad}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
