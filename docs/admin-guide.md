@@ -259,7 +259,7 @@ Invoke-Command -Session $s { & "$env:ProgramFiles\PktmonGUI\PktmonGUI.exe" --cap
 
 ### Invoke-RemotePktmon.ps1
 
-`tools\Invoke-RemotePktmon.ps1` does all of that for many hosts at once, in parallel, and returns one result per host. `Get-Help .\tools\Invoke-RemotePktmon.ps1 -Full` lists every parameter.
+`tools\Invoke-RemotePktmon.ps1` does all of that for many hosts at once, in parallel, and returns one result per host. `Get-Help .\tools\Invoke-RemotePktmon.ps1 -Full` lists every parameter. Put `PktmonGUI.exe` beside the script, or pass its location with `-ExePath`.
 
 ```powershell
 .\tools\Invoke-RemotePktmon.ps1 -ComputerName SRV01,SRV02 -Action Start -Duration 30m -Preset dns

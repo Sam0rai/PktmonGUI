@@ -252,7 +252,7 @@ $prepare = {
 
 # Returns the sessions whose host has the exe ready; each host that failed becomes a result row.
 function Install-PktmonExe([System.Management.Automation.Runspaces.PSSession[]]$Sessions, [string]$Act) {
-    if (-not (Test-Path -LiteralPath $ExePath)) { throw "No PktmonGUI.exe at $ExePath; build it (dotnet build src/PktmonGUI -c Release) or pass -ExePath." }
+    if (-not (Test-Path -LiteralPath $ExePath)) { throw "No PktmonGUI.exe at $ExePath. Put it beside this script or pass -ExePath; to build it, run dotnet build src/PktmonGUI -c Release." }
     $localHash = (Get-FileHash -LiteralPath $ExePath -Algorithm SHA256).Hash
     $localSettingsHash = if ($SettingsPath -and (Test-Path -LiteralPath $SettingsPath)) { (Get-FileHash -LiteralPath $SettingsPath -Algorithm SHA256).Hash } else { $null }
     $Sessions = Split-Sessions $Sessions $Act
